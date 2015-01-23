@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="BooleanSlider.widget.BooleanSlider" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>Boolean Slider</name>
+    <description>HTML Boolean Slider</description>
+
+    <icon></icon>
+
+    <properties>
+        <property key="dataAttr" type="attribute" required="true" isPath="optional" pathType="reference">
+            <caption>Boolean Attribute</caption>
+            <category>Data source</category>
+            <description>The Boolean attribute.</description>
+            <attributeTypes>
+                <attributeType name="Boolean" />
+            </attributeTypes>
+        </property>
+
+        <property key="onChangeMF" type="microflow" required="false">
+            <caption>onChange Microflow</caption>
+            <category>Behavior</category>
+            <description>Microflow to trigger when button is toggled</description>
+            <returnType type="Void" />
+        </property>
+
+    </properties>
+</widget>
+
