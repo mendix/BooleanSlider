@@ -15,9 +15,8 @@
 
 	Documentation
     ========================
-	Provides a non-JavaScript alternative to a check box,
-    commonly referred to as a slider control. Can be used in both web
-    and mobile contexts.
+	Provides a alternative to a check box, commonly referred to as a slider control.
+    Does not require any javascript, and is styled via css. Can be used in both web and mobile contexts.
 
 */
 

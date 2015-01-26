@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <widget id="BooleanSlider.widget.BooleanSlider" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
     <name>Boolean Slider</name>
-    <description>HTML Boolean Slider</description>
+    <description>Boolean Slider for replacing the default checkboxes for boolean attributes.</description>
 
     <icon>iVBORw0KGgoAAAANSUhEUgAAACAAAAARCAIAAAAzPjmrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAK
 T2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj333vRCS4iAlEtvUhUIIFJCi4AU
