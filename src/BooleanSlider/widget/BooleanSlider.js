@@ -43,6 +43,7 @@
             _mxObject: null,
             _attribute: null,
             _path: null,
+            _editable: true,
 
             // Template path
             templatePath: require.toUrl('BooleanSlider/widget/templates/BooleanSlider.html'),
@@ -72,11 +73,31 @@
             startup: function () {
 
                 // postCreate
-                var path = this.dataAttr.split("/");
+                var path, trueNode, falseNode;
+                
+                path = this.dataAttr.split("/");
                 this._attribute = path[path.length - 1];
                 this._path = path.splice(0, path.length - 1);
 
                 console.log('BooleanSlider - startup attr ' + this._attribute);
+                
+                trueNode = domQuery("#" + this.id + " .wgt-BooleanSlider__toggletrue");
+                if (trueNode && trueNode.length > 0) {
+                    trueNode[0].innerText = this.trueValue;
+                }
+                else {
+                    console.log('BooleanSlider - startup trueNode not found');
+                }
+
+                falseNode = domQuery("#" + this.id + " .wgt-BooleanSlider__togglefalse");
+                if (falseNode && falseNode.length > 0) {
+                    falseNode[0].innerText = this.falseValue;
+                }
+                else {
+                    console.log('BooleanSlider - startup falseNode not found');
+                }
+
+                this._editable = /true/.test(this.editable);
 
             },
 
@@ -128,6 +149,7 @@
                     // Subscribe to object updates.
                     this._data[this.id]._handle = mx.data.subscribe({
                         guid: this._data[this.id]._contextObj.getGuid(),
+                        attr: this._attribute,
                         callback: lang.hitch(this, function (obj) {
 
                             mx.data.get({
@@ -157,21 +179,23 @@
              * How the widget re-acts from actions invoked by the Mendix App.
              */
             suspend: function () {
-                //TODO, what will happen if the widget is suspended (not visible).
+                //TODO, what will happen if the widget is suspended (not visible)
             },
 
             resume: function () {
-                //TODO, what will happen if the widget is resumed (set visible).
+                //TODO, what will happen if the widget is resumed (set visible)
             },
 
             enable: function () {
-                //TODO, what will happen if the widget is suspended (not visible).
+                //TODO, what will happen if the widget is enabled
+                this._editable = true;
             },
 
             disable: function () {
-                //TODO, what will happen if the widget is resumed (set visible).
+                //TODO, what will happen if the widget is disabled
+                this._editable = false;
             },
-
+            
             uninitialize: function () {
                 //TODO, clean up only events
                 if (this._data[this.id]._handle) {
@@ -210,7 +234,6 @@
 
             },
 
-
             /**
              * Interaction widget methods.
              * ======================
@@ -224,6 +247,14 @@
                 } else {
                     this.domNode.control.removeAttribute("checked");
                 }
+                
+                if (!this._editable ||
+                    this._data[this.id]._contextObj.isReadonlyAttr(this._attribute)
+                   ) {
+                    this.domNode.control.setAttribute("disabled", "");
+                } else {
+                    this.domNode.control.removeAttribute("disabled");
+                }
 
             },
 
@@ -231,11 +262,7 @@
 
                 // get the data value to save
                 var checked = this.domNode.control.checked;
-                if (checked) {
-                    this._data[this.id]._contextObj.set(this._attribute, true);
-                } else {
-                    this._data[this.id]._contextObj.set(this._attribute, false);
-                }
+                this._data[this.id]._contextObj.set(this._attribute, checked);
 
             },
             

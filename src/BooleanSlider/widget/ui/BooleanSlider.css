@@ -21,7 +21,7 @@
     padding: 0 20px;
     border: none;
     overflow: visible;
-    width: 51px;
+    width: 71px;
     height: 32px;
     z-index: 0;
     text-align: left;
@@ -61,6 +61,7 @@
     left: 0px;
     right: 0px;
     bottom: 0px;
+    padding: 4px;
     -webkit-border-radius: 30px;
     border-radius: 30px;
     -webkit-transition-property: all;
@@ -107,12 +108,39 @@
 .wgt-BooleanSlider__input:checked + .wgt-BooleanSlider__toggle {
     background-color: #5198db;
 }
+.wgt-BooleanSlider__toggletrue {
+    font-weight: bold;
+    color: #fff;
+    float: left;
+    width: 30px;
+    text-align: center;
+    
+}
+.wgt-BooleanSlider__input:checked + .wgt-BooleanSlider__toggle > .wgt-BooleanSlider__toggletrue {
+    visibility: visible;
+}
+.wgt-BooleanSlider__input:not(:checked) + .wgt-BooleanSlider__toggle > .wgt-BooleanSlider__toggletrue {
+    visibility: hidden;
+}
+.wgt-BooleanSlider__togglefalse {
+    font-weight: bold;
+    color: #000;
+    float: right;
+    width: 30px;
+    text-align: center;
+}
+.wgt-BooleanSlider__input:checked + .wgt-BooleanSlider__toggle > .wgt-BooleanSlider__togglefalse {
+    visibility: hidden;
+}
+.wgt-BooleanSlider__input:not(:checked) + .wgt-BooleanSlider__toggle > .wgt-BooleanSlider__togglefalse {
+    visibility: visible;
+}
 .wgt-BooleanSlider__input:checked + .wgt-BooleanSlider__toggle:before {
-    -webkit-transform: translateX(18px);
-    -moz-transform: translateX(18px);
-    -ms-transform: translateX(18px);
-    -o-transform: translateX(18px);
-    transform: translateX(18px);
+    -webkit-transform: translateX(38px);
+    -moz-transform: translateX(38px);
+    -ms-transform: translateX(38px);
+    -o-transform: translateX(38px);
+    transform: translateX(38px);
 }
 .wgt-BooleanSlider__input:not(:checked) + .wgt-BooleanSlider__toggle:before {
     -webkit-transform: translateX(0px);
