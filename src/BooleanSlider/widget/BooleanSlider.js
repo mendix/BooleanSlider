@@ -7,16 +7,15 @@
 	========================
 
 	@file      : BooleanSlider.js
-	@version   : {{version}}
-	@author    : {{author}}
-	@date      : {{date}}
+	@version   : 1.0
+	@author    : Chad Evans
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
 
 	Documentation
     ========================
 	Provides a alternative to a check box, commonly referred to as a slider control.
-    Does not require any javascript, and is styled via css. Can be used in both web and mobile contexts.
+    Can be used in both web and mobile contexts.
 
 */
 
@@ -57,7 +56,7 @@
             postCreate: function () {
 
                 // postCreate
-                console.log('BooleanSlider - postCreate');
+                //console.log('BooleanSlider - postCreate');
 
                 // Load CSS ... automaticly from ui directory
 
@@ -74,26 +73,24 @@
 
                 // postCreate
                 var path, trueNode, falseNode;
-                
+
                 path = this.dataAttr.split("/");
                 this._attribute = path[path.length - 1];
                 this._path = path.splice(0, path.length - 1);
 
-                console.log('BooleanSlider - startup attr ' + this._attribute);
-                
+                //console.log('BooleanSlider - startup attr ' + this._attribute);
+
                 trueNode = domQuery("#" + this.id + " .wgt-BooleanSlider__toggletrue");
                 if (trueNode && trueNode.length > 0) {
                     trueNode[0].innerText = this.trueValue;
-                }
-                else {
+                } else {
                     console.log('BooleanSlider - startup trueNode not found');
                 }
 
                 falseNode = domQuery("#" + this.id + " .wgt-BooleanSlider__togglefalse");
                 if (falseNode && falseNode.length > 0) {
                     falseNode[0].innerText = this.falseValue;
-                }
-                else {
+                } else {
                     console.log('BooleanSlider - startup falseNode not found');
                 }
 
@@ -111,7 +108,7 @@
                 this._data[this.id]._contextObj = obj;
 
                 // startup
-                console.log('BooleanSlider - update');
+                //console.log('BooleanSlider - update');
 
                 // Release handle on previous object, if any.
                 if (this._data[this.id]._handle) {
@@ -178,24 +175,14 @@
             /**
              * How the widget re-acts from actions invoked by the Mendix App.
              */
-            suspend: function () {
-                //TODO, what will happen if the widget is suspended (not visible)
-            },
-
-            resume: function () {
-                //TODO, what will happen if the widget is resumed (set visible)
-            },
-
             enable: function () {
-                //TODO, what will happen if the widget is enabled
                 this._editable = true;
             },
 
             disable: function () {
-                //TODO, what will happen if the widget is disabled
                 this._editable = false;
             },
-            
+
             uninitialize: function () {
                 //TODO, clean up only events
                 if (this._data[this.id]._handle) {
@@ -222,12 +209,12 @@
             // Attach events to newly created nodes.
             _setupEvents: function () {
 
-                console.log('BooleanSlider - setup events');
+                //console.log('BooleanSlider - setup events');
 
                 on(this.domNode.control, 'click', lang.hitch(this, function () {
 
                     this._saveData();
-                    
+
                     this._execMF(this._data[this.id]._contextObj, this.mfToExecute);
 
                 }));
@@ -247,10 +234,10 @@
                 } else {
                     this.domNode.control.removeAttribute("checked");
                 }
-                
+
                 if (!this._editable ||
                     this._data[this.id]._contextObj.isReadonlyAttr(this._attribute)
-                   ) {
+                ) {
                     this.domNode.control.setAttribute("disabled", "");
                 } else {
                     this.domNode.control.removeAttribute("disabled");
@@ -265,7 +252,7 @@
                 this._data[this.id]._contextObj.set(this._attribute, checked);
 
             },
-            
+
             _execMF: function (obj, mf, cb) {
                 if (mf) {
                     var params = {
