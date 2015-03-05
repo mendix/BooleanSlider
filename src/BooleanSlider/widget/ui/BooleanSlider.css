@@ -26,6 +26,9 @@
     z-index: 0;
     text-align: left;
 }
+.wgt-BooleanSlider.hidden {
+    display: none;
+}
 .wgt-BooleanSlider__input {
     position: absolute;
     overflow: hidden;
