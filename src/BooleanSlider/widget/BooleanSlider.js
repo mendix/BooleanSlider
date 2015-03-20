@@ -7,7 +7,7 @@
 	========================
 
 	@file      : BooleanSlider.js
-	@version   : 1.1
+	@version   : 1.2
 	@author    : Chad Evans
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
@@ -49,7 +49,7 @@ require({}, [
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            console.log(this.id + '.postCreate');
+            //console.log(this.id + '.postCreate');
 
             // postCreate
             var path, trueNode, falseNode;
@@ -67,14 +67,14 @@ require({}, [
 
             trueNode = domQuery("#" + this.id + " .wgt-BooleanSlider__toggletrue");
             if (trueNode && trueNode.length > 0) {
-                trueNode[0].textContent = this.trueValue;
+                domProp.set(trueNode[0], "textContent", this.trueValue);
             } else {
                 console.log(this.id + '.postCreate - startup trueNode not found');
             }
 
             falseNode = domQuery("#" + this.id + " .wgt-BooleanSlider__togglefalse");
             if (falseNode && falseNode.length > 0) {
-                falseNode[0].textContent = this.falseValue;
+                domProp.set(falseNode[0], "textContent", this.falseValue);
             } else {
                 console.log(this.id + '.postCreate - startup falseNode not found');
             }
@@ -86,10 +86,10 @@ require({}, [
 
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
-            console.log(this.id + '.update');
+            //console.log(this.id + '.update');
 
             if (obj === null) {
-                console.log(this.id + '.update - We did not get any context object!');
+                //console.log(this.id + '.update - We did not get any context object!');
                 if (!domClass.contains(this.domNode, 'hidden')) {
                     domClass.add(this.domNode, 'hidden');
                 }
@@ -110,7 +110,6 @@ require({}, [
 
         // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
         enable: function () {
-            console.log(this.id + '.enable');
             if (/true/.test(this.editable)) {
                 this._editable = true;
             }
@@ -119,7 +118,6 @@ require({}, [
 
         // mxui.widget._WidgetBase.disable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
         disable: function () {
-            console.log(this.id + '.disable');
             this._editable = false;
             this._loadData();
         },
@@ -147,7 +145,7 @@ require({}, [
         },
 
         _loadData: function () {
-            console.log(this.id + '._loadData');
+            //console.log(this.id + '._loadData');
 
             var control, nodeIndex, node,
                 // get the data value to load
@@ -201,7 +199,7 @@ require({}, [
         },
 
         _resetSubscriptions: function () {
-            console.log(this.id + '._resetSubscriptions');
+            //console.log(this.id + '._resetSubscriptions');
 
             // Release handle on previous object, if any.
             this._cleanupSubscriptions();
