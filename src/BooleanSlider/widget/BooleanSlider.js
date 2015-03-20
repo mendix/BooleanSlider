@@ -67,14 +67,14 @@ require({}, [
 
             trueNode = domQuery("#" + this.id + " .wgt-BooleanSlider__toggletrue");
             if (trueNode && trueNode.length > 0) {
-                trueNode[0].innerText = this.trueValue;
+                trueNode[0].textContent = this.trueValue;
             } else {
                 console.log(this.id + '.postCreate - startup trueNode not found');
             }
 
             falseNode = domQuery("#" + this.id + " .wgt-BooleanSlider__togglefalse");
             if (falseNode && falseNode.length > 0) {
-                falseNode[0].innerText = this.falseValue;
+                falseNode[0].textContent = this.falseValue;
             } else {
                 console.log(this.id + '.postCreate - startup falseNode not found');
             }
