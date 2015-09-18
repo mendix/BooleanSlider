@@ -14,14 +14,12 @@
                 <attributeType name="Boolean" />
             </attributeTypes>
         </property>
-
         <property key="onChangeMF" type="microflow" required="false">
             <caption>onChange Microflow</caption>
             <category>Behavior</category>
             <description>Microflow to trigger when button is toggled</description>
             <returnType type="Void" />
         </property>
-        
         <property key="trueValue" type="translatableString">
             <caption>String value for True</caption>
             <category>Customization</category>
@@ -30,7 +28,6 @@
                 <translation lang="en_US">Yes</translation>
             </translations>
         </property>
-
         <property key="falseValue" type="translatableString">
             <caption>String value for False</caption>
             <category>Customization</category>
@@ -39,13 +36,11 @@
                 <translation lang="en_US">No</translation>
             </translations>
         </property>
-        
         <property key="editable" type="boolean" required="true" defaultValue="true">
             <caption>Editable</caption>
             <category>Editability</category>
             <description>Whether the user is allowed to change the value.</description>
         </property>
-
     </properties>
 </widget>
 

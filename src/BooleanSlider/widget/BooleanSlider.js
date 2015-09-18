@@ -1,13 +1,10 @@
-/*jslint white:true, nomen: true, plusplus: true */
-/*global mx, define, require, browser, devel, console */
-/*mendix */
 /**
 
 	Boolean Slider
 	========================
 
 	@file      : BooleanSlider.js
-	@version   : 1.2
+	@version   : 1.3
 	@author    : Chad Evans
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
@@ -19,245 +16,232 @@
 
 */
 
-
-require({}, [
-    'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
-    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text',
-    'dojo/text!BooleanSlider/widget/templates/BooleanSlider.html'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, widgetTemplate) {
-    'use strict';
+define([
+    "dojo/_base/declare",
+    "mxui/widget/_WidgetBase",
+    "dijit/_TemplatedMixin",
+    "mxui/dom",
+    "dojo/dom",
+    "dojo/dom-prop",
+    "dojo/dom-attr",
+    "dojo/dom-class",
+    "dojo/dom-style",
+    "dojo/dom-construct",
+    "dojo/_base/array",
+    "dojo/_base/lang",
+    "dojo/text",
+    "dojo/html",
+    "dojo/_base/event",
+    "dojo/text!BooleanSlider/widget/templates/BooleanSlider.html"
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoAttr, dojoClass, dojoStyle,
+    dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, widgetTemplate) {
+    "use strict";
 
     // Declare widget's prototype.
-    return declare('BooleanSlider.widget.BooleanSlider', [_WidgetBase, _TemplatedMixin], {
+    return declare("BooleanSlider.widget.BooleanSlider", [_WidgetBase, _TemplatedMixin], {
         // _TemplatedMixin will create our dom node using this HTML template.
         templateString: widgetTemplate,
+
+        // DOM elements
+        controlNode: null,
+        inputNode: null,
+        trueNode: null,
+        falseNode: null,
 
         // Parameters configured in the Modeler.
         dataAttr: "",
         onChangeMF: "",
         trueValue: "",
         falseValue: "",
-        editable: "",
+        editable: true,
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
-        _data: {},
-        _attribute: null,
-        _editable: true,
+        _handles: null,
+        _contextObj: null,
+        _alertDiv: null,
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
-        constructor: function () {},
+        constructor: function () {
+            this._handles = [];
+        },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            //console.log(this.id + '.postCreate');
+            console.log(this.id + ".postCreate");
 
-            // postCreate
-            var path, trueNode, falseNode;
-
-            // To be able to use this widget with multiple instances of itself we need to add a data variable.
-            this._data[this.id] = {
-                _contextGuid: null,
-                _contextObj: null,
-                _handleObj: null,
-                _handleAttr: null
-            };
-
-            path = this.dataAttr.split("/");
-            this._attribute = path[path.length - 1];
-
-            trueNode = domQuery("#" + this.id + " .wgt-BooleanSlider__toggletrue");
-            if (trueNode && trueNode.length > 0) {
-                domProp.set(trueNode[0], "textContent", this.trueValue);
-            } else {
-                console.log(this.id + '.postCreate - startup trueNode not found');
-            }
-
-            falseNode = domQuery("#" + this.id + " .wgt-BooleanSlider__togglefalse");
-            if (falseNode && falseNode.length > 0) {
-                domProp.set(falseNode[0], "textContent", this.falseValue);
-            } else {
-                console.log(this.id + '.postCreate - startup falseNode not found');
-            }
-
-            this._editable = /true/.test(this.editable);
-
+            this._updateRendering();
             this._setupEvents();
         },
 
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
-            //console.log(this.id + '.update');
+            console.log(this.id + ".update");
 
-            if (obj === null) {
-                //console.log(this.id + '.update - We did not get any context object!');
-                if (!domClass.contains(this.domNode, 'hidden')) {
-                    domClass.add(this.domNode, 'hidden');
-                }
-            } else {
-                if (domClass.contains(this.domNode, 'hidden')) {
-                    domClass.remove(this.domNode, 'hidden');
-                }
-                this._data[this.id]._contextObj = obj;
-                this._resetSubscriptions();
-                this._loadData();
-            }
+            this._contextObj = obj;
+            this._resetSubscriptions();
+            this._updateRendering();
 
-            // Execute callback.
-            if (typeof callback !== 'undefined') {
-                callback();
-            }
-        },
-
-        // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
-        enable: function () {
-            if (/true/.test(this.editable)) {
-                this._editable = true;
-            }
-            this._loadData();
-        },
-
-        // mxui.widget._WidgetBase.disable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
-        disable: function () {
-            this._editable = false;
-            this._loadData();
+            callback();
         },
 
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
-            this._cleanupSubscriptions();
+        },
+
+        // We want to stop events on a mobile device
+        _stopBubblingEventOnMobile: function (e) {
+            if (typeof document.ontouchstart !== "undefined") {
+                dojoEvent.stop(e);
+            }
         },
 
         _setupEvents: function () {
-            this.connect(this.domNode, 'click', function () {
-                this._saveData();
-                this._execMF(this._data[this.id]._contextObj, this.onChangeMF);
-                //this._resetSubscriptions();
+            this.connect(this.controlNode, "click", function (e) {
+                this._stopBubblingEventOnMobile(e);
+
+                // save the data
+                this._contextObj.set(this.dataAttr, this.inputNode.checked);
+
+                if (this.onChangeMF !== "") {
+                    mx.data.action({
+                        params: {
+                            applyto: "selection",
+                            actionname: this.onChangeMF,
+                            guids: [this._contextObj.getGuid()]
+                        },
+                        callback: function (obj) {
+                            //TODO what to do when all is ok!
+                        },
+                        error: dojoLang.hitch(this, function (error) {
+                            console.log(this.id + ": An error occurred while executing microflow: " + error.description);
+                        })
+                    }, this);
+                }
             });
         },
 
-        _loadDataCallback: function (objs) {
-            // Set the object as background.
-            this._data[this.id]._contextObj = objs[0];
+        // Rerender the interface.
+        _updateRendering: function () {
+            if (this._contextObj !== null) {
+                dojoStyle.set(this.domNode, "display", "block");
 
-            // Load data again.
-            this._loadData();
+                dojoProp.set(this.trueNode, "textContent", this.trueValue);
+                dojoProp.set(this.falseNode, "textContent", this.falseValue);
+
+                this._loadData();
+            } else {
+                dojoStyle.set(this.domNode, "display", "none");
+            }
+
+            // Important to clear all validations!
+            this._clearValidations();
         },
 
         _loadData: function () {
-            //console.log(this.id + '._loadData');
+            // get the data value to load
+            var checked = this._contextObj.get(this.dataAttr);
 
-            var control, nodeIndex, node,
-                // get the data value to load
-                checked = this._data[this.id]._contextObj.get(this._attribute);
-
-            for (nodeIndex = 0; nodeIndex < this.domNode.childNodes.length; nodeIndex++) {
-                node = this.domNode.childNodes[nodeIndex];
-                if (node.tagName && node.tagName.toUpperCase() === 'INPUT') {
-                    control = node;
-                }
-            }
-            if (control) {
+            if (this.inputNode) {
                 if (checked !== null && checked) {
-                    control.checked = true;
+                    this.inputNode.checked = true;
+                    dojoClass.add(this.controlNode, "btn-primary");
+                    dojoClass.remove(this.controlNode, "btn-default");
                 } else {
-                    control.checked = false;
+                    this.inputNode.checked = false;
+                    dojoClass.remove(this.controlNode, "btn-primary");
+                    dojoClass.add(this.controlNode, "btn-default");
                 }
 
-                if (!this._editable ||
+                if (!this.editable ||
                     this.readOnly ||
-                    this._data[this.id]._contextObj.isReadonlyAttr(this._attribute)
+                    this._contextObj.isReadonlyAttr(this.dataAttr)
                 ) {
-                    control.setAttribute("disabled", "");
+                    dojoAttr.set(this.inputNode, "disabled", "");
                 } else {
-                    control.removeAttribute("disabled");
+                    dojoAttr.remove(this.inputNode, "disabled");
                 }
             }
         },
 
-        _saveData: function () {
-            // get the data value to save
-            var nodeIndex, node;
+        // Handle validations.
+        _handleValidation: function (validations) {
+            this._clearValidations();
 
-            for (nodeIndex = 0; nodeIndex < this.domNode.childNodes.length; nodeIndex++) {
-                node = this.domNode.childNodes[nodeIndex];
-                if (node.tagName && node.tagName.toUpperCase() === 'INPUT') {
-                    this._data[this.id]._contextObj.set(this._attribute, node.checked);
-                }
+            var validation = validations[0],
+                message = validation.getReasonByAttribute(this.dataAttr);
+
+            if (this.readOnly) {
+                validation.removeAttribute(this.dataAttr);
+            } else if (message) {
+                this._addValidation(message);
+                validation.removeAttribute(this.dataAttr);
             }
         },
 
-        _cleanupSubscriptions: function () {
-            if (this._data[this.id]._handleObj) {
-                mx.data.unsubscribe(this._data[this.id]._handleObj);
-                this._data[this.id]._handleObj = null;
+        // Clear validations.
+        _clearValidations: function () {
+            dojoConstruct.destroy(this._alertDiv);
+            this._alertDiv = null;
+        },
+
+        // Show an error message.
+        _showError: function (message) {
+            if (this._alertDiv !== null) {
+                dojoHtml.set(this._alertDiv, message);
+                return true;
             }
-            if (this._data[this.id]._handleAttr) {
-                mx.data.unsubscribe(this._data[this.id]._handleAttr);
-                this._data[this.id]._handleAttr = null;
-            }
+            this._alertDiv = dojoConstruct.create("div", {
+                "class": "alert alert-danger",
+                "innerHTML": message
+            });
+            dojoConstruct.place(this._alertDiv, this.domNode);
+        },
+
+        // Add a validation.
+        _addValidation: function (message) {
+            this._showError(message);
         },
 
         _resetSubscriptions: function () {
-            //console.log(this.id + '._resetSubscriptions');
-
-            // Release handle on previous object, if any.
-            this._cleanupSubscriptions();
-
-            // Subscribe to object updates.
-            if (this._data[this.id]._contextObj) {
-                this._data[this.id]._handleObj = mx.data.subscribe({
-                    guid: this._data[this.id]._contextObj.getGuid(),
-                    callback: lang.hitch(this, function (obj) {
-                        mx.data.get({
-                            guids: [obj],
-                            callback: lang.hitch(this, this._loadDataCallback)
-                        });
-                    })
+            // Release handles on previous object, if any.
+            if (this._handles) {
+                this._handles.forEach(function (handle) {
+                    mx.data.unsubscribe(handle);
                 });
-
-                this._data[this.id]._handleAttr = mx.data.subscribe({
-                    guid: this._data[this.id]._contextObj.getGuid(),
-                    attr: this._attribute,
-                    callback: lang.hitch(this, function (obj) {
-                        mx.data.get({
-                            guids: [obj],
-                            callback: lang.hitch(this, this._loadDataCallback)
-                        });
-                    })
-                });
-
+                this._handles = [];
             }
-        },
 
-        _execMF: function (obj, mf, cb) {
-            if (mf) {
-                var params = {
-                    applyto: "selection",
-                    actionname: mf,
-                    guids: []
-                };
-                if (obj) {
-                    params.guids = [obj.getGuid()];
-                }
-                mx.data.action({
-                    params: params,
-                    callback: function (objs) {
-                        if (cb) {
-                            cb(objs);
-                        }
-                    },
-                    error: function (error) {
-                        if (cb) {
-                            cb();
-                        }
-                        console.warn(error.description);
-                    }
-                }, this);
+            // When a mendix object exists create subscribtions. 
+            if (this._contextObj) {
+                var objectHandle = this.subscribe({
+                    guid: this._contextObj.getGuid(),
+                    callback: dojoLang.hitch(this, function (guid) {
+                        this._updateRendering();
+                    })
+                });
 
-            } else if (cb) {
-                cb();
+                var attrHandle = this.subscribe({
+                    guid: this._contextObj.getGuid(),
+                    attr: this.dataAttr,
+                    callback: dojoLang.hitch(this, function (guid, attr, attrValue) {
+                        this._updateRendering();
+                    })
+                });
+
+                var validationHandle = this.subscribe({
+                    guid: this._contextObj.getGuid(),
+                    val: true,
+                    callback: dojoLang.hitch(this, this._handleValidation)
+                });
+
+                this._handles = [objectHandle, attrHandle, validationHandle];
             }
         }
     });
+});
+
+
+require(["BooleanSlider/widget/BooleanSlider"], function () {
+    "use strict";
 });
