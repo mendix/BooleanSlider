@@ -67,7 +67,7 @@ define([
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            console.log(this.id + ".postCreate");
+            //console.log(this.id + ".postCreate");
 
             this._updateRendering();
             this._setupEvents();
@@ -75,7 +75,7 @@ define([
 
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
-            console.log(this.id + ".update");
+            //console.log(this.id + ".update");
 
             this._contextObj = obj;
             this._resetSubscriptions();
@@ -89,21 +89,12 @@ define([
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
         },
 
-        // We want to stop events on a mobile device
-        _stopBubblingEventOnMobile: function (e) {
-            if (typeof document.ontouchstart !== "undefined") {
-                dojoEvent.stop(e);
-            }
-        },
-
         _setupEvents: function () {
             this.connect(this.controlNode, "click", function (e) {
-                this._stopBubblingEventOnMobile(e);
-
                 // save the data
                 this._contextObj.set(this.dataAttr, this.inputNode.checked);
 
-                if (this.onChangeMF !== "") {
+                if (this.onChangeMF) {
                     mx.data.action({
                         params: {
                             applyto: "selection",
