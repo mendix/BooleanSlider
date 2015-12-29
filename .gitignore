@@ -6,3 +6,5 @@ test/.project
 *.tmp
 *.lock
 .idea/
+
+node_modules/
