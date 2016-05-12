@@ -1,45 +1,22 @@
-/**
-
-	Boolean Slider
-	========================
-
-	@file      : BooleanSlider.js
-	@version   : 1.3
-	@author    : Chad Evans
-	@copyright : Mendix Technology BV
-	@license   : Apache License, Version 2.0, January 2004
-
-	Documentation
-    ========================
-	Provides a alternative to a check box, commonly referred to as a slider control.
-    Can be used in both web and mobile contexts.
-
-*/
-
 define([
     "dojo/_base/declare",
     "mxui/widget/_WidgetBase",
     "dijit/_TemplatedMixin",
-    "mxui/dom",
-    "dojo/dom",
+
     "dojo/dom-prop",
     "dojo/dom-attr",
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dom-construct",
-    "dojo/_base/array",
     "dojo/_base/lang",
-    "dojo/text",
+
     "dojo/html",
-    "dojo/_base/event",
     "dojo/text!BooleanSlider/widget/templates/BooleanSlider.html"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoAttr, dojoClass, dojoStyle,
-    dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dojoProp, dojoAttr, dojoClass, dojoStyle, dojoConstruct, dojoLang, dojoHtml, widgetTemplate) {
     "use strict";
 
-    // Declare widget's prototype.
     return declare("BooleanSlider.widget.BooleanSlider", [_WidgetBase, _TemplatedMixin], {
-        // _TemplatedMixin will create our dom node using this HTML template.
+
         templateString: widgetTemplate,
 
         // DOM elements
@@ -55,41 +32,29 @@ define([
         falseValue: "",
         editable: true,
 
-        // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
+        // Internal variables.
         _handles: null,
         _contextObj: null,
         _alertDiv: null,
 
-        // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             this._handles = [];
         },
 
-        // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            //console.log(this.id + ".postCreate");
-
-            this._updateRendering();
+            logger.debug(this.id + ".postCreate");
             this._setupEvents();
         },
 
-        // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
-            //console.log(this.id + ".update");
-
+            logger.debug(this.id + ".update");
             this._contextObj = obj;
             this._resetSubscriptions();
-            this._updateRendering();
-
-            callback();
-        },
-
-        // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
-        uninitialize: function () {
-            // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
+            this._updateRendering(callback);
         },
 
         _setupEvents: function () {
+            logger.debug(this.id + "._setupEvents");
             this.connect(this.controlNode, "click", function (e) {
                 // save the data
                 this._contextObj.set(this.dataAttr, this.inputNode.checked);
@@ -101,9 +66,10 @@ define([
                             actionname: this.onChangeMF,
                             guids: [this._contextObj.getGuid()]
                         },
-                        callback: function (obj) {
-                            //TODO what to do when all is ok!
+                        store: {
+                            caller: this.mxform
                         },
+                        callback: function () {}, // stub function
                         error: dojoLang.hitch(this, function (error) {
                             console.log(this.id + ": An error occurred while executing microflow: " + error.description);
                         })
@@ -112,24 +78,26 @@ define([
             });
         },
 
-        // Rerender the interface.
-        _updateRendering: function () {
+        _updateRendering: function (callback) {
+            logger.debug(this.id + "._updateRendering");
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
 
                 dojoProp.set(this.trueNode, "textContent", this.trueValue);
                 dojoProp.set(this.falseNode, "textContent", this.falseValue);
 
-                this._loadData();
+                this._loadData(callback);
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
+                mendix.lang.nullExec(callback);
             }
 
             // Important to clear all validations!
             this._clearValidations();
         },
 
-        _loadData: function () {
+        _loadData: function (callback) {
+            logger.debug(this.id + "._loadData");
             // get the data value to load
             var checked = this._contextObj.get(this.dataAttr);
 
@@ -144,18 +112,16 @@ define([
                     dojoClass.add(this.controlNode, "btn-default");
                 }
 
-                if (!this.editable ||
-                    this.readOnly ||
-                    this._contextObj.isReadonlyAttr(this.dataAttr)
-                ) {
+                if (!this.editable || this.readOnly || this._contextObj.isReadonlyAttr(this.dataAttr)) {
                     dojoAttr.set(this.inputNode, "disabled", "");
                 } else {
                     dojoAttr.remove(this.inputNode, "disabled");
                 }
             }
+
+            mendix.lang.nullExec(callback);
         },
 
-        // Handle validations.
         _handleValidation: function (validations) {
             this._clearValidations();
 
@@ -170,13 +136,11 @@ define([
             }
         },
 
-        // Clear validations.
         _clearValidations: function () {
             dojoConstruct.destroy(this._alertDiv);
             this._alertDiv = null;
         },
 
-        // Show an error message.
         _showError: function (message) {
             if (this._alertDiv !== null) {
                 dojoHtml.set(this._alertDiv, message);
@@ -189,13 +153,13 @@ define([
             dojoConstruct.place(this._alertDiv, this.domNode);
         },
 
-        // Add a validation.
         _addValidation: function (message) {
             this._showError(message);
         },
 
         _resetSubscriptions: function () {
-            // Release handles on previous object, if any.
+            logger.debug(this.id + "._resetSubscriptions");
+
             if (this._handles) {
                 this._handles.forEach(function (handle) {
                     mx.data.unsubscribe(handle);
@@ -203,16 +167,16 @@ define([
                 this._handles = [];
             }
 
-            // When a mendix object exists create subscribtions. 
+            // When a mendix object exists create subscribtions.
             if (this._contextObj) {
-                var objectHandle = this.subscribe({
+                var objectHandle = mx.data.subscribe({
                     guid: this._contextObj.getGuid(),
                     callback: dojoLang.hitch(this, function (guid) {
                         this._updateRendering();
                     })
                 });
 
-                var attrHandle = this.subscribe({
+                var attrHandle = mx.data.subscribe({
                     guid: this._contextObj.getGuid(),
                     attr: this.dataAttr,
                     callback: dojoLang.hitch(this, function (guid, attr, attrValue) {
@@ -220,7 +184,7 @@ define([
                     })
                 });
 
-                var validationHandle = this.subscribe({
+                var validationHandle = mx.data.subscribe({
                     guid: this._contextObj.getGuid(),
                     val: true,
                     callback: dojoLang.hitch(this, this._handleValidation)
@@ -233,6 +197,4 @@ define([
 });
 
 
-require(["BooleanSlider/widget/BooleanSlider"], function () {
-    "use strict";
-});
+require(["BooleanSlider/widget/BooleanSlider"]);
