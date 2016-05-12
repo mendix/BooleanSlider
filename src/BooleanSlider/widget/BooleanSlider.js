@@ -4,7 +4,7 @@
 	========================
 
 	@file      : BooleanSlider.js
-	@version   : 1.3
+	@version   : 1.4.1
 	@author    : Chad Evans
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
@@ -117,8 +117,8 @@ define([
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
 
-                dojoProp.set(this.trueNode, "textContent", this.trueValue);
-                dojoProp.set(this.falseNode, "textContent", this.falseValue);
+                dojoProp.set(this.trueNode, "text", this.trueValue);
+                dojoProp.set(this.falseNode, "text", this.falseValue);
 
                 this._loadData();
             } else {
